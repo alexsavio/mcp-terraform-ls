@@ -24,16 +24,13 @@ Add to your project's `.mcp.json`:
   "mcpServers": {
     "terraform": {
       "command": "npx",
-      "args": ["-y", "mcp-terraform-ls"],
-      "env": {
-        "TERRAFORM_LS_PATH": "/opt/homebrew/bin/terraform-ls"
-      }
+      "args": ["-y", "mcp-terraform-ls"]
     }
   }
 }
 ```
 
-Set `TERRAFORM_LS_PATH` to the path of your `terraform-ls` binary. If omitted, it defaults to `terraform-ls` (must be on `PATH`).
+Optionally set the `TERRAFORM_LS_PATH` environment variable if `terraform-ls` is not on your `PATH`.
 
 ## Available Tools
 

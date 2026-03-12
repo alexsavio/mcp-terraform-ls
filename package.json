@@ -15,11 +15,11 @@
   "author": "alexsavio",
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.1"
+    "@modelcontextprotocol/sdk": "^1.27.1"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "typescript": "^5.7.0"
+    "@types/node": "^22.19.15",
+    "typescript": "^5.9.0"
   },
   "engines": {
     "node": ">=18"

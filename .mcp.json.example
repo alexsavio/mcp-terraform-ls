@@ -2,10 +2,7 @@
   "mcpServers": {
     "terraform": {
       "command": "npx",
-      "args": ["-y", "mcp-terraform-ls"],
-      "env": {
-        "TERRAFORM_LS_PATH": "/opt/homebrew/bin/terraform-ls"
-      }
+      "args": ["-y", "mcp-terraform-ls"]
     }
   }
 }

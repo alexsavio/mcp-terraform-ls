@@ -1,0 +1,30 @@
+{
+  "name": "mcp-terraform-ls",
+  "version": "0.1.0",
+  "description": "MCP server wrapping terraform-ls for Terraform language intelligence",
+  "main": "dist/index.js",
+  "bin": {
+    "mcp-terraform-ls": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js"
+  },
+  "keywords": ["mcp", "terraform", "lsp", "terraform-ls", "claude"],
+  "author": "alexsavio",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "dist"
+  ]
+}

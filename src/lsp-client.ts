@@ -1,6 +1,7 @@
 import { spawn, ChildProcess } from "node:child_process";
 import { EventEmitter } from "node:events";
 import * as path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 interface JsonRpcMessage {
   jsonrpc: "2.0";
@@ -112,16 +113,7 @@ export class LspClient extends EventEmitter {
   }
 
   private resolveWorkspaceRoot(fileUri: string): string {
-    // Walk up from the file to find a directory containing .tf files
-    let dir = path.dirname(fileUri.replace("file://", ""));
-    const root = path.parse(dir).root;
-
-    while (dir !== root) {
-      // Use the directory containing the .tf file as workspace root
-      return dir;
-    }
-
-    return dir;
+    return path.dirname(fileURLToPath(fileUri));
   }
 
   private async initialize(workspaceRoot: string): Promise<void> {
@@ -153,7 +145,7 @@ export class LspClient extends EventEmitter {
 
     const initResult = await this.sendRequest("initialize", {
       processId: process.pid,
-      rootUri: `file://${workspaceRoot}`,
+      rootUri: pathToFileURL(workspaceRoot).href,
       capabilities: {
         textDocument: {
           hover: { contentFormat: ["markdown", "plaintext"] },
@@ -178,7 +170,7 @@ export class LspClient extends EventEmitter {
       },
       workspaceFolders: [
         {
-          uri: `file://${workspaceRoot}`,
+          uri: pathToFileURL(workspaceRoot).href,
           name: path.basename(workspaceRoot),
         },
       ],

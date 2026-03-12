@@ -1,6 +1,8 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import * as fs from "node:fs";
+import * as path from "node:path";
+import { pathToFileURL, fileURLToPath } from "node:url";
 import {
   LspClient,
   Hover,
@@ -12,14 +14,16 @@ import {
 } from "./lsp-client.js";
 
 function filePathToUri(filePath: string): string {
-  // Normalize to absolute path and convert to file:// URI
-  const absolute = filePath.startsWith("/") ? filePath : `${process.cwd()}/${filePath}`;
-  return `file://${absolute}`;
+  return pathToFileURL(path.resolve(filePath)).href;
 }
 
 function readFileContent(filePath: string): string {
-  const absolute = filePath.startsWith("/") ? filePath : `${process.cwd()}/${filePath}`;
-  return fs.readFileSync(absolute, "utf-8");
+  const absolute = path.resolve(filePath);
+  try {
+    return fs.readFileSync(absolute, "utf-8");
+  } catch (err) {
+    throw new Error(`Failed to read file '${absolute}': ${(err as Error).message}`);
+  }
 }
 
 async function ensureDocumentOpen(
@@ -56,7 +60,7 @@ function formatLocations(locations: Location | Location[] | null): string {
 
   return locs
     .map((loc) => {
-      const file = loc.uri.replace("file://", "");
+      const file = fileURLToPath(loc.uri);
       const line = loc.range.start.line + 1;
       const col = loc.range.start.character + 1;
       return `${file}:${line}:${col}`;

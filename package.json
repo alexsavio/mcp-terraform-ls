@@ -1,6 +1,6 @@
 {
   "name": "mcp-terraform-ls",
-  "version": "2026.3.0",
+  "version": "2026.3.1",
   "description": "MCP server wrapping terraform-ls for Terraform language intelligence",
   "main": "dist/index.js",
   "bin": {

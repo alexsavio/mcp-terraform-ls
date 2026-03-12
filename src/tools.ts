@@ -22,14 +22,11 @@ function readFileContent(filePath: string): string {
   try {
     return fs.readFileSync(absolute, "utf-8");
   } catch (err) {
-    throw new Error(`Failed to read file '${absolute}': ${(err as Error).message}`);
+    throw new Error(`Failed to read file '${absolute}': ${(err as Error).message}`, { cause: err });
   }
 }
 
-async function ensureDocumentOpen(
-  client: LspClient,
-  filePath: string
-): Promise<string> {
+async function ensureDocumentOpen(client: LspClient, filePath: string): Promise<string> {
   const uri = filePathToUri(filePath);
   const content = readFileContent(filePath);
   await client.openDocument(uri, content);
@@ -38,21 +35,19 @@ async function ensureDocumentOpen(
   return uri;
 }
 
-function formatHover(hover: Hover | null): string {
+export function formatHover(hover: Hover | null): string {
   if (!hover) return "No information available at this position.";
 
   const { contents } = hover;
   if (typeof contents === "string") return contents;
   if ("value" in contents) return contents.value;
   if (Array.isArray(contents)) {
-    return contents
-      .map((c) => (typeof c === "string" ? c : c.value))
-      .join("\n\n");
+    return contents.map((c) => (typeof c === "string" ? c : c.value)).join("\n\n");
   }
   return JSON.stringify(contents);
 }
 
-function formatLocations(locations: Location | Location[] | null): string {
+export function formatLocations(locations: Location | Location[] | null): string {
   if (!locations) return "No definition found.";
 
   const locs = Array.isArray(locations) ? locations : [locations];
@@ -68,7 +63,7 @@ function formatLocations(locations: Location | Location[] | null): string {
     .join("\n");
 }
 
-function formatCompletions(items: CompletionItem[]): string {
+export function formatCompletions(items: CompletionItem[]): string {
   if (items.length === 0) return "No completions available.";
 
   return items
@@ -78,9 +73,7 @@ function formatCompletions(items: CompletionItem[]): string {
       if (item.detail) line += ` — ${item.detail}`;
       if (item.documentation) {
         const doc =
-          typeof item.documentation === "string"
-            ? item.documentation
-            : item.documentation.value;
+          typeof item.documentation === "string" ? item.documentation : item.documentation.value;
         if (doc) line += `\n  ${doc.split("\n")[0]}`;
       }
       return line;
@@ -89,18 +82,35 @@ function formatCompletions(items: CompletionItem[]): string {
 }
 
 const SYMBOL_KINDS: Record<number, string> = {
-  1: "File", 2: "Module", 3: "Namespace", 4: "Package", 5: "Class",
-  6: "Method", 7: "Property", 8: "Field", 9: "Constructor", 10: "Enum",
-  11: "Interface", 12: "Function", 13: "Variable", 14: "Constant",
-  15: "String", 16: "Number", 17: "Boolean", 18: "Array", 19: "Object",
-  20: "Key", 21: "Null", 22: "EnumMember", 23: "Struct", 24: "Event",
-  25: "Operator", 26: "TypeParameter",
+  1: "File",
+  2: "Module",
+  3: "Namespace",
+  4: "Package",
+  5: "Class",
+  6: "Method",
+  7: "Property",
+  8: "Field",
+  9: "Constructor",
+  10: "Enum",
+  11: "Interface",
+  12: "Function",
+  13: "Variable",
+  14: "Constant",
+  15: "String",
+  16: "Number",
+  17: "Boolean",
+  18: "Array",
+  19: "Object",
+  20: "Key",
+  21: "Null",
+  22: "EnumMember",
+  23: "Struct",
+  24: "Event",
+  25: "Operator",
+  26: "TypeParameter",
 };
 
-function formatSymbols(
-  symbols: DocumentSymbol[] | SymbolInformation[],
-  indent = 0
-): string {
+export function formatSymbols(symbols: DocumentSymbol[] | SymbolInformation[], indent = 0): string {
   if (symbols.length === 0) return "No symbols found.";
 
   return symbols
@@ -150,7 +160,7 @@ export function registerTools(server: McpServer, client: LspClient): void {
         character: character - 1,
       });
       return { content: [{ type: "text" as const, text: formatHover(hover) }] };
-    }
+    },
   );
 
   server.tool(
@@ -166,7 +176,7 @@ export function registerTools(server: McpServer, client: LspClient): void {
       return {
         content: [{ type: "text" as const, text: formatLocations(result) }],
       };
-    }
+    },
   );
 
   server.tool(
@@ -187,7 +197,7 @@ export function registerTools(server: McpServer, client: LspClient): void {
           },
         ],
       };
-    }
+    },
   );
 
   server.tool(
@@ -203,7 +213,7 @@ export function registerTools(server: McpServer, client: LspClient): void {
       return {
         content: [{ type: "text" as const, text: formatCompletions(items) }],
       };
-    }
+    },
   );
 
   server.tool(
@@ -229,7 +239,7 @@ export function registerTools(server: McpServer, client: LspClient): void {
         })
         .join("\n");
       return { content: [{ type: "text" as const, text }] };
-    }
+    },
   );
 
   server.tool(
@@ -242,7 +252,7 @@ export function registerTools(server: McpServer, client: LspClient): void {
       return {
         content: [{ type: "text" as const, text: formatSymbols(symbols) }],
       };
-    }
+    },
   );
 
   server.tool(
@@ -254,9 +264,7 @@ export function registerTools(server: McpServer, client: LspClient): void {
       const edits = await client.formatting(uri);
       if (edits.length === 0) {
         return {
-          content: [
-            { type: "text" as const, text: "File is already formatted." },
-          ],
+          content: [{ type: "text" as const, text: "File is already formatted." }],
         };
       }
 
@@ -276,31 +284,20 @@ export function registerTools(server: McpServer, client: LspClient): void {
         const startOffset = positionToOffset(
           lines,
           edit.range.start.line,
-          edit.range.start.character
+          edit.range.start.character,
         );
-        const endOffset = positionToOffset(
-          lines,
-          edit.range.end.line,
-          edit.range.end.character
-        );
-        result =
-          result.substring(0, startOffset) +
-          edit.newText +
-          result.substring(endOffset);
+        const endOffset = positionToOffset(lines, edit.range.end.line, edit.range.end.character);
+        result = result.substring(0, startOffset) + edit.newText + result.substring(endOffset);
       }
 
       return {
         content: [{ type: "text" as const, text: result }],
       };
-    }
+    },
   );
 }
 
-function positionToOffset(
-  lines: string[],
-  line: number,
-  character: number
-): number {
+export function positionToOffset(lines: string[], line: number, character: number): number {
   let offset = 0;
   for (let i = 0; i < line && i < lines.length; i++) {
     offset += lines[i].length + 1; // +1 for newline

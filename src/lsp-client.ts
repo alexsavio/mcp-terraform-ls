@@ -66,7 +66,10 @@ export interface SymbolInformation {
 }
 
 export interface Hover {
-  contents: string | { kind: string; value: string } | Array<string | { language: string; value: string }>;
+  contents:
+    | string
+    | { kind: string; value: string }
+    | Array<string | { language: string; value: string }>;
   range?: Range;
 }
 
@@ -78,7 +81,7 @@ const SEVERITY_MAP: Record<number, string> = {
 };
 
 export function severityToString(severity: number | undefined): string {
-  return severity ? SEVERITY_MAP[severity] ?? "Unknown" : "Unknown";
+  return severity ? (SEVERITY_MAP[severity] ?? "Unknown") : "Unknown";
 }
 
 export class LspClient extends EventEmitter {
@@ -95,8 +98,7 @@ export class LspClient extends EventEmitter {
 
   constructor() {
     super();
-    this.terraformLsPath =
-      process.env.TERRAFORM_LS_PATH || "terraform-ls";
+    this.terraformLsPath = process.env.TERRAFORM_LS_PATH || "terraform-ls";
   }
 
   async ensureInitialized(fileUri: string): Promise<void> {
@@ -137,9 +139,7 @@ export class LspClient extends EventEmitter {
     });
 
     this.process.on("exit", (code) => {
-      process.stderr.write(
-        `[terraform-ls] exited with code ${code}\n`
-      );
+      process.stderr.write(`[terraform-ls] exited with code ${code}\n`);
       this.initialized = false;
       this.process = null;
     });
@@ -213,9 +213,7 @@ export class LspClient extends EventEmitter {
         const message: JsonRpcMessage = JSON.parse(body);
         this.handleMessage(message);
       } catch {
-        process.stderr.write(
-          `[terraform-ls] Failed to parse JSON-RPC message\n`
-        );
+        process.stderr.write(`[terraform-ls] Failed to parse JSON-RPC message\n`);
       }
     }
   }
@@ -241,11 +239,7 @@ export class LspClient extends EventEmitter {
         this.pending.delete(message.id);
         clearTimeout(pending.timer);
         if (message.error) {
-          pending.reject(
-            new Error(
-              `LSP error ${message.error.code}: ${message.error.message}`
-            )
-          );
+          pending.reject(new Error(`LSP error ${message.error.code}: ${message.error.message}`));
         } else {
           pending.resolve(message.result);
         }
@@ -327,10 +321,7 @@ export class LspClient extends EventEmitter {
     return result as Hover | null;
   }
 
-  async definition(
-    uri: string,
-    position: Position
-  ): Promise<Location | Location[] | null> {
+  async definition(uri: string, position: Position): Promise<Location | Location[] | null> {
     await this.ensureInitialized(uri);
     const result = await this.sendRequest("textDocument/definition", {
       textDocument: { uri },
@@ -339,10 +330,7 @@ export class LspClient extends EventEmitter {
     return result as Location | Location[] | null;
   }
 
-  async references(
-    uri: string,
-    position: Position
-  ): Promise<Location[] | null> {
+  async references(uri: string, position: Position): Promise<Location[] | null> {
     await this.ensureInitialized(uri);
     const result = await this.sendRequest("textDocument/references", {
       textDocument: { uri },
@@ -352,10 +340,7 @@ export class LspClient extends EventEmitter {
     return result as Location[] | null;
   }
 
-  async completion(
-    uri: string,
-    position: Position
-  ): Promise<CompletionItem[]> {
+  async completion(uri: string, position: Position): Promise<CompletionItem[]> {
     await this.ensureInitialized(uri);
     const result = (await this.sendRequest("textDocument/completion", {
       textDocument: { uri },
@@ -371,9 +356,7 @@ export class LspClient extends EventEmitter {
     return this.diagnostics.get(uri) ?? [];
   }
 
-  async documentSymbols(
-    uri: string
-  ): Promise<DocumentSymbol[] | SymbolInformation[]> {
+  async documentSymbols(uri: string): Promise<DocumentSymbol[] | SymbolInformation[]> {
     await this.ensureInitialized(uri);
     const result = await this.sendRequest("textDocument/documentSymbol", {
       textDocument: { uri },

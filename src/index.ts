@@ -7,9 +7,9 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { LspClient } from "./lsp-client.js";
 import { registerTools } from "./tools.js";
 
-const pkg = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, "..", "package.json"), "utf-8")
-) as { version: string };
+const pkg = JSON.parse(fs.readFileSync(path.resolve(__dirname, "..", "package.json"), "utf-8")) as {
+  version: string;
+};
 const { version } = pkg;
 
 async function main(): Promise<void> {

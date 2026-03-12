@@ -19,6 +19,38 @@ brew install hashicorp/tap/terraform-ls
 # Or download from https://github.com/hashicorp/terraform-ls/releases
 ```
 
+## Installation
+
+### From GitHub Releases
+
+Download the latest `.tgz` package from the [releases page](https://github.com/alexsavio/mcp-terraform-ls/releases/latest) and install it globally:
+
+```bash
+npm install -g https://github.com/alexsavio/mcp-terraform-ls/releases/latest/download/mcp-terraform-ls-<version>.tgz
+```
+
+Or download the tarball first and install locally:
+
+```bash
+# Download
+curl -LO https://github.com/alexsavio/mcp-terraform-ls/releases/latest/download/mcp-terraform-ls-<version>.tgz
+
+# Install globally
+npm install -g mcp-terraform-ls-<version>.tgz
+```
+
+Replace `<version>` with the actual version number (e.g., `2026.3.0`).
+
+### From source
+
+```bash
+git clone https://github.com/alexsavio/mcp-terraform-ls.git
+cd mcp-terraform-ls
+npm install
+npm run build
+npm link
+```
+
 ## Usage with Claude Code
 
 Add to your project's `.mcp.json`:
@@ -29,6 +61,18 @@ Add to your project's `.mcp.json`:
     "terraform": {
       "command": "npx",
       "args": ["-y", "mcp-terraform-ls"]
+    }
+  }
+}
+```
+
+If you installed from a GitHub Release, you can reference the binary directly:
+
+```json
+{
+  "mcpServers": {
+    "terraform": {
+      "command": "mcp-terraform-ls"
     }
   }
 }

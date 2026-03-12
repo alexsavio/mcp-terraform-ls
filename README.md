@@ -1,10 +1,14 @@
 # mcp-terraform-ls
 
+[![CI](https://github.com/alexsavio/mcp-terraform-ls/actions/workflows/ci.yml/badge.svg)](https://github.com/alexsavio/mcp-terraform-ls/actions/workflows/ci.yml)
+[![Release](https://github.com/alexsavio/mcp-terraform-ls/actions/workflows/release.yml/badge.svg)](https://github.com/alexsavio/mcp-terraform-ls/actions/workflows/release.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/alexsavio/mcp-terraform-ls)](https://github.com/alexsavio/mcp-terraform-ls/releases/latest)
+
 An MCP (Model Context Protocol) server that wraps [terraform-ls](https://github.com/hashicorp/terraform-ls), exposing Terraform language intelligence as MCP tools. This enables AI assistants like Claude Code to understand and navigate Terraform codebases.
 
 ## Prerequisites
 
-- Node.js >= 18
+- Node.js >= 20
 - [terraform-ls](https://github.com/hashicorp/terraform-ls) installed
 
 Install terraform-ls:

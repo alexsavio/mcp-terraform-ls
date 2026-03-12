@@ -15,6 +15,7 @@ interface JsonRpcMessage {
 interface PendingRequest {
   resolve: (result: unknown) => void;
   reject: (error: Error) => void;
+  timer: ReturnType<typeof setTimeout>;
 }
 
 export interface Position {
@@ -238,6 +239,7 @@ export class LspClient extends EventEmitter {
       const pending = this.pending.get(message.id);
       if (pending) {
         this.pending.delete(message.id);
+        clearTimeout(pending.timer);
         if (message.error) {
           pending.reject(
             new Error(
@@ -266,7 +268,14 @@ export class LspClient extends EventEmitter {
         params,
       };
 
-      this.pending.set(id, { resolve, reject });
+      const timer = setTimeout(() => {
+        if (this.pending.has(id)) {
+          this.pending.delete(id);
+          reject(new Error(`LSP request '${method}' timed out after 30s`));
+        }
+      }, 30_000);
+
+      this.pending.set(id, { resolve, reject, timer });
 
       const body = JSON.stringify(message);
       const header = `Content-Length: ${Buffer.byteLength(body)}\r\n\r\n`;
@@ -288,7 +297,7 @@ export class LspClient extends EventEmitter {
     this.process.stdin.write(header + body);
   }
 
-  async openDocument(uri: string, text: string): Promise<void> {
+  openDocument(uri: string, text: string): void {
     if (this.openDocuments.has(uri)) {
       // Send didChange instead
       this.sendNotification("textDocument/didChange", {

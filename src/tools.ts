@@ -260,8 +260,8 @@ export function registerTools(server: McpServer, client: LspClient): void {
         };
       }
 
-      // Apply edits to the content
-      const content = readFileContent(file);
+      // Apply edits to the content (normalize CRLF to LF)
+      const content = readFileContent(file).replace(/\r\n/g, "\n");
       const lines = content.split("\n");
 
       // Apply edits in reverse order to preserve positions
